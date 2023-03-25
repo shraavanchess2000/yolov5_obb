@@ -146,7 +146,6 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 # det[:, :4] = scale_coords(im.shape[2:], det[:, :4], im0.shape).round()
                 pred_poly = scale_polys(im.shape[2:], pred_poly, im0.shape)
                 det = torch.cat((pred_poly, det[:, -2:]), dim=1) # (n, [poly conf cls])
-
                 # Print results
                 for c in det[:, -1].unique():
                     n = (det[:, -1] == c).sum()  # detections per class
@@ -156,8 +155,8 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
                 for *poly, conf, cls in reversed(det):
                     if save_txt:  # Write to file
                         # xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        poly = poly.tolist()
-                        line = (cls, *poly, conf) if save_conf else (cls, *poly)  # label format
+                        #poly = poly.tolist DOES NOT WORK!
+                        line = (*poly, conf, cls) if save_conf else (*poly, cls)  # label format
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
@@ -206,7 +205,6 @@ def run(weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
-
 
 def parse_opt():
     parser = argparse.ArgumentParser()
